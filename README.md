@@ -36,7 +36,7 @@ Not a model. A **plug-and-play attention mechanism** that replaces standard mult
 
 ## 📊 Speed Benchmark
 
-![HSA vs Standard Attention](honest_benchmark.png)
+![HSA vs Standard Attention](honest_benchmark.png.png)
 
 
 
