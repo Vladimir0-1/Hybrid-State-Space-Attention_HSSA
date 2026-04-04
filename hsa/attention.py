@@ -1,5 +1,10 @@
-%%writefile hsa/attention.py
-"""
+import os
+
+# Полный путь к файлу
+file_path = "/content/Hybrid-State-Space-Attention-HSA-/hsa/attention.py"
+
+# Содержимое файла (многострочная строка)
+content = '''"""
 Hybrid State-Space Attention (HSA) - Linear-complexity attention mechanism
 Author: Vladimir0-1
 License: MIT
@@ -103,3 +108,12 @@ class HybridStateSpaceAttention(nn.Module):
             result = result + current
             stride *= 2
         return result / (math.log2(seq) + 1)
+'''
+
+# Записываем файл
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print(f"✅ Файл записан: {file_path}")
+print("Проверка первых 5 строк:")
+!head -5 /content/Hybrid-State-Space-Attention-HSA-/hsa/attention.py
