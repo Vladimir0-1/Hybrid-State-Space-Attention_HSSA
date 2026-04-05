@@ -1,5 +1,5 @@
 """
-Hybrid State-Space Attention (HSA) - Linear-complexity attention mechanism
+Hybrid State-Space Attention (HSSA) 
 Author: Vladimir0-1
 License: MIT
 """
