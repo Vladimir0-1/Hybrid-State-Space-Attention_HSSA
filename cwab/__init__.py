@@ -4,7 +4,7 @@ Author: Vladimir0-1
 License: MIT
 """
 
-from .cwab_attention import CWAB
+from .attention import CWAB
 
 __all__ = ["CWAB"]
 __version__ = "1.0.0"
