@@ -1,7 +1,7 @@
 """
-Example: Replace BERT's attention with HSA
-Shows how to plug HSA into any transformer model.
-Run this to verify HSA works as a drop-in replacement.
+Example: Replace BERT's attention with HSSA
+Shows how to plug HSSA into any transformer model.
+Run this to verify HSSA works as a drop-in replacement.
 """
 
 import torch
@@ -12,11 +12,11 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from hsa import HybridStateSpaceAttention
+from hssa import HybridStateSpaceAttention
 
 
 def replace_bert_attention(model, window_size=512, num_global_tokens=64):
-    """Replace all attention layers in BERT-style model with HSA."""
+    """Replace all attention layers in BERT-style model with HSSA."""
     for layer in model.encoder.layer:
         old_attn = layer.attention.self
         
@@ -35,7 +35,7 @@ def replace_bert_attention(model, window_size=512, num_global_tokens=64):
 
 def main():
     print("=" * 60)
-    print("HSA: BERT Attention Replacement Demo")
+    print("HSSA: BERT Attention Replacement Demo")
     print("=" * 60)
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -51,7 +51,7 @@ def main():
     print(f"   Original parameters: {original_params:,}")
     
     # Replace attention
-    print("\n2. Replacing attention with HSA...")
+    print("\n2. Replacing attention with HSSA...")
     model = replace_bert_attention(model, window_size=512, num_global_tokens=64)
     
     new_params = sum(p.numel() for p in model.parameters())
@@ -73,7 +73,7 @@ def main():
         
         print(f"   Seq len {seq_len:4d}: {elapsed:.2f} ms | Output shape: {outputs.last_hidden_state.shape}")
     
-    print("\n HSA works as a drop-in replacement for BERT attention.")
+    print("\n HSSA works as a drop-in replacement for BERT attention.")
     print("   Note: Speed comparison with original BERT is not shown here.")
     print("   Run hsa_demo.ipynb or hsa_demo.py for full benchmarks.")
 
