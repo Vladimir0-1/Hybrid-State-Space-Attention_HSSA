@@ -127,16 +127,15 @@ HSA combines four mechanisms to achieve linear complexity:
 
 
 Input Sequence (n tokens)
-        │
-        ├──► Sliding Window ──► Local context (O(n×window))
-        │
-        ├──► Compressed Attention ──► Global context via k-means centroids (O(n×k))
-        │
-        ├──► Information Broadcast ──► Exponential diffusion (O(n log n))
-        │
-        └──► Adaptive Mixing ──► Learnable gates balance local/global
-                    │
-                    ▼
+                   ↓
+         Sliding Window -> Local context (O(n×window))
+                   ↓
+         Compressed Attention -> Global context via k-means centroids (O(n×k))
+                   ↓
+         Information Broadcast -> Exponential diffusion (O(n log n))
+                   ↓
+         Adaptive Mixing -> Learnable gates balance local/global
+                   ↓     
               Output (n tokens)
 
 
