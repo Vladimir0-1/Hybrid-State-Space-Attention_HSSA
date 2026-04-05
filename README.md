@@ -83,6 +83,46 @@ model.attention = HybridStateSpaceAttention(
 
 Click the badge to reproduce results on your own hardware.
 
+## Multi-Agent Extension (Sleepy Agent Legion)
+
+HSA can be extended to a multi-agent system where agents **work, sleep, and dream**.
+
+### How It Works
+
+| State | Behavior |
+|-------|----------|
+| **Awake** | Agent processes tasks normally, stores memories |
+| **Sleep** | Agent is inactive, **hallucinated ideal self** takes over |
+| **Dream** | Ideal self replays memories, generates improved strategies |
+| **Collective Unconscious** | All agents share memories and reach consensus |
+
+### Key Concepts
+
+- **Hallucinated ideal self** — not a bug. When the agent sleeps, its best possible version (dreamed, not real) takes control and improves upon the agent's work.
+- **Dream cycles** — agents periodically sleep, process memories, and wake up with better strategies.
+- **Collective unconscious** — shared memory pool across agents. What one learns, all know.
+- **Group hallucination** — when agents disagree, they collectively generate an emergent solution (not majority voting).
+
+### Why This Works
+
+- Agents learn **without an external teacher** (self-improvement)
+- Long context is split across agents (each handles a segment)
+- Hallucinations become **creativity source**, not errors
+
+### Example
+
+```python
+from hsa import SleepyAgentLegion
+
+legion = SleepyAgentLegion(
+    num_agents=7,
+    base_config=config,
+    consensus_threshold=0.7
+)
+
+output = legion.forward("Explain quantum computing")
+# Agents work → sleep → dream → wake → collective output
+
 
 
 ## License
