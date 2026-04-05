@@ -125,8 +125,8 @@ legion = SleepyAgentLegion(
 
 HSA combines four mechanisms to achieve linear complexity:
 
-
 Input Sequence (n tokens)
+            
                    ↓
          Sliding Window -> Local context (O(n×window))
                    ↓
@@ -139,32 +139,7 @@ Input Sequence (n tokens)
               Output (n tokens)
 
 
-                    ┌─────────────────────────────────────────┐
-                    │              HSA Layer                  │
-                    └─────────────────────────────────────────┘
-                                      │
-            ┌─────────────────────────┼─────────────────────────┐
-            │                         │                         │
-            ▼                         ▼                         ▼
-    ┌───────────────┐       ┌─────────────────┐       ┌─────────────────┐
-    │ Sliding Window│       │    Compressed   │       │  Information   │
-    │   Attention   │       │    Attention    │       │   Broadcast    │
-    │               │       │                 │       │                 │
-    │ O(n×window)   │       │   O(n×k)        │       │   O(n log n)    │
-    └───────┬───────┘       └────────┬────────┘       └────────┬────────┘
-            │                        │                         │
-            └────────────────────────┼─────────────────────────┘
-                                     │
-                                     ▼
-                    ┌─────────────────────────────────────┐
-                    │         Adaptive Mixing             │
-                    │  (learned gates: local vs global)   │
-                    └─────────────────────────────────────┘
-                                     │
-                                     ▼
-                    ┌─────────────────────────────────────┐
-                    │            Output Projection         │
-                    └─────────────────────────────────────┘
+
 
 
 ### Why this works
