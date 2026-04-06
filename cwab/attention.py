@@ -3,8 +3,7 @@ CWAB - Compressed Window Attention Broadcast
 Author: Vladimir0-1
 License: MIT
 
-A plug-and-play attention mechanism with linear complexity.
-Combines sliding window, compressed global attention, and information broadcast.
+Now with positional encoding support.
 """
 
 import torch
@@ -15,15 +14,16 @@ import math
 
 class CWAB(nn.Module):
     """
-    CWAB: Linear-complexity attention mechanism.
+    CWAB: Linear-complexity attention with positional encoding support.
     
     Args:
         hidden_size: Model dimension
         num_heads: Number of attention heads
-        window_size: Size of sliding window for local attention
+        window_size: Size of sliding window
         num_global_tokens: Number of compressed global tokens
         dropout: Dropout probability
-        short_seq_threshold: Use full attention below this length (avoid overhead)
+        short_seq_threshold: Use full attention below this length
+        use_positional_encoding: Add positional information to queries/keys
     """
     
     def __init__(
@@ -34,6 +34,7 @@ class CWAB(nn.Module):
         num_global_tokens: int = 64,
         dropout: float = 0.1,
         short_seq_threshold: int = 1024,
+        use_positional_encoding: bool = True,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -42,6 +43,7 @@ class CWAB(nn.Module):
         self.window_size = min(window_size, hidden_size)
         self.num_global_tokens = num_global_tokens
         self.short_seq_threshold = short_seq_threshold
+        self.use_positional_encoding = use_positional_encoding
 
         # Learnable global memory tokens
         self.global_memory = nn.Parameter(torch.randn(1, num_global_tokens, hidden_size))
@@ -50,6 +52,10 @@ class CWAB(nn.Module):
         self.q_proj = nn.Linear(hidden_size, hidden_size)
         self.k_proj = nn.Linear(hidden_size, hidden_size)
         self.v_proj = nn.Linear(hidden_size, hidden_size)
+        
+        # Positional encoding (learned, like BERT)
+        self.max_position = 8192  # Support up to 8K tokens
+        self.position_embeddings = nn.Embedding(self.max_position, hidden_size)
         
         # Compression (4x stride)
         self.compressor = nn.Conv1d(hidden_size, hidden_size, kernel_size=4, stride=4)
@@ -76,6 +82,12 @@ class CWAB(nn.Module):
             Output tensor (batch_size, seq_len, hidden_size)
         """
         batch, seq, dim = x.shape
+        
+        # Add positional embeddings if needed
+        if self.use_positional_encoding and seq <= self.max_position:
+            positions = torch.arange(seq, device=x.device).unsqueeze(0).expand(batch, -1)
+            pos_embeds = self.position_embeddings(positions)
+            x = x + pos_embeds
         
         # For short sequences, use full attention to avoid overhead
         if seq <= self.short_seq_threshold:
