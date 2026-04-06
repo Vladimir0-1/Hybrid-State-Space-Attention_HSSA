@@ -1,13 +1,12 @@
 """
 Example: Replace BERT's attention with CWAB
-Shows how to plug CWAB into any transformer model.
+Now preserves positional information.
 """
 
 import torch
 from transformers import AutoModel, AutoTokenizer
 import sys
 import os
-import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,6 +24,7 @@ def replace_bert_attention(model, window_size=512, num_global_tokens=64):
             window_size=window_size,
             num_global_tokens=num_global_tokens,
             dropout=old_attn.dropout.p if hasattr(old_attn, 'dropout') else 0.1,
+            use_positional_encoding=True,  # Enable positional encoding
         )
         
         layer.attention.self = new_attn
@@ -34,7 +34,7 @@ def replace_bert_attention(model, window_size=512, num_global_tokens=64):
 
 def main():
     print("=" * 60)
-    print("CWAB: BERT Attention Replacement Demo")
+    print("CWAB: BERT Attention Replacement Demo (with positions)")
     print("=" * 60)
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -46,33 +46,22 @@ def main():
     model = AutoModel.from_pretrained(model_name).to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     
-    original_params = sum(p.numel() for p in model.parameters())
-    print(f"   Original parameters: {original_params:,}")
-    
     # Replace attention
-    print("\n2. Replacing attention with CWAB...")
+    print("\n2. Replacing attention with CWAB (positional encoding ON)...")
     model = replace_bert_attention(model, window_size=512, num_global_tokens=64)
     
-    new_params = sum(p.numel() for p in model.parameters())
-    print(f"   New parameters: {new_params:,}")
-    print(f"   Change: {new_params - original_params:+,}")
+    # Test
+    print("\n3. Testing forward pass with positions...")
+    test_text = "Hello world. This is a test sentence."
+    inputs = tokenizer(test_text, return_tensors="pt", truncation=True, max_length=128).to(device)
     
-    # Test with different sequence lengths
-    print("\n3. Testing forward pass...")
-    test_lengths = [128, 256, 512, 1024]
+    with torch.no_grad():
+        outputs = model(**inputs)
     
-    for seq_len in test_lengths:
-        text = "Hello world. " * (seq_len // 3)
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=seq_len).to(device)
-        
-        with torch.no_grad():
-            start = time.time()
-            outputs = model(**inputs)
-            elapsed = (time.time() - start) * 1000
-        
-        print(f"   Seq len {seq_len:4d}: {elapsed:.2f} ms | Output shape: {outputs.last_hidden_state.shape}")
-    
-    print("\n CWAB works as a drop-in replacement for BERT attention.")
+    print(f"   Output shape: {outputs.last_hidden_state.shape}")
+    print("\n CWAB with positional encoding works!")
+    print("   Note: Speed comparison with original BERT is not shown here.")
+    print("   Run cwab_demo.py for full benchmarks.")
 
 
 if __name__ == "__main__":
